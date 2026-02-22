@@ -89,7 +89,17 @@ def serve_stdin(stdout=sys.stdout, stdin=sys.stdin):
 
 # ensure the built-in tools are registered during import
 # importing the module has side effects of registering via decorator
-from . import mcp_tools  # noqa: F401
+# use absolute import so this still works when the module is executed as __main__
+import todo_mcp.mcp_tools  # noqa: F401
 
 if __name__ == "__main__":
-    serve_stdin()
+    # when running via `python -m todo_mcp.mcp`, this file is executed as
+    # __main__, which leads to a separate module object from the importable
+    # `todo_mcp.mcp`. Tools register against the latter, so we import it and
+    # delegate the serve call to guarantee the correct registry is used.
+    import importlib
+
+    real = importlib.import_module("todo_mcp.mcp")
+    # serve_stdin was called when the real module was imported above, but we
+    # call it again here to handle the stdin/stdout loop from the real module.
+    real.serve_stdin()

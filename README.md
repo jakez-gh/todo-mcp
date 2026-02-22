@@ -2,7 +2,13 @@
 
 **Multi-workspace task coordinator (MCP) that supports subtask hierarchies, dependencies, and dashboard views.**
 
-This project aims to be a general-purpose task manager for developers working across many projects, conversations, or even outside of any project (e.g. personal grocery lists). It will support:
+This project started as a fork of the `todo-agent` repository (which provided a
+full-featured CLI, MCP server, and storage implementation) so we could
+enhance and adapt it to a multi-workspace context. The initial code in this
+repo was copied over and then progressively simplified and rebuilt via vertical
+slices. The goal remains: a general-purpose task manager for developers
+working across many projects, conversations, or even outside of any project
+(e.g. personal grocery lists). It will support:
 
 - Task dependencies with automatic blocking/unblocking
 - Subtasks and parent/child completion rules
