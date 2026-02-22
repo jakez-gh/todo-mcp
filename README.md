@@ -28,4 +28,12 @@ python -m pytest -q
 
 Before pushing changes, run `pre-commit` and ensure all tests pass. A `pre-push` git hook will run the test suite and can create tasks on failure.
 
+To install the provided hooks after cloning the repository, run:
+
+```bash
+python -m todo_mcp.cli add-ci-githooks
+``` 
+
+This sets `core.hooksPath` to the `hooks/` folder so the same hooks work on other machines.
+
 PRs are welcome! This project uses a vertical slice architecture to keep features isolated and make agent collaboration easier.
