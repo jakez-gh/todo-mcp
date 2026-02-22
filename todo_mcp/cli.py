@@ -59,6 +59,8 @@ def main():
     create_parser.add_argument("--depends-on", action="append", help="Dependencies")
 
     subparsers.add_parser("tasks", help="Show dashboard of all tasks")
+    p_export = subparsers.add_parser("export-html", help="Export tasks to HTML file")
+    p_export.add_argument("path")
 
     subparsers.add_parser("serve", help="Start MCP stdin/stdout server")
 
@@ -82,6 +84,10 @@ def main():
         tasks = mcp.call_tool("list_tasks", {})
         for t in tasks:
             print(f"{t['id']}  [{t['status']}] {t['title']}")
+        return 0
+    elif args.command == "export-html":
+        res = mcp.call_tool("export_html", {"path": args.path})
+        print(f"Exported to {res['path']}")
         return 0
     elif args.command == "serve":
         print("Starting MCP server (type JSON lines to interact)")

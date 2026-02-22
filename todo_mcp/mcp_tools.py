@@ -7,6 +7,7 @@ from typing import Any, Dict, List
 from . import mcp
 from .storage import FileStorage
 from .tasks import Task, TaskManager, Status, CircularDependencyError, TaskNotFoundError
+from pathlib import Path
 
 # helper to load/save manager
 _storage = FileStorage()
@@ -108,6 +109,33 @@ def tool_get_status(args: Dict[str, Any]) -> Dict[str, Any]:
     if not task:
         raise TaskNotFoundError(args["task_id"])
     return {"id": task.id, "status": task.status.name, "metadata": task.metadata}
+
+
+# ---------------------------------------------------------------------------
+# export utilities
+# ---------------------------------------------------------------------------
+
+@mcp.register_tool(
+    name="export_html",
+    description="Export all tasks to a simple HTML file",
+    input_schema={
+        "type": "object",
+        "properties": {"path": {"type": "string"}},
+        "required": ["path"],
+    },
+)
+def tool_export_html(args: Dict[str, Any]) -> Dict[str, Any]:
+    mgr = _load_mgr()
+    path = Path(args["path"])
+    rows = []
+    for t in mgr.tasks.values():
+        rows.append(f"<tr><td>{t.id}</td><td>{t.title}</td><td>{t.status.name}</td></tr>")
+    html = """<!doctype html><html><head><meta charset=\"utf-8\"><title>Tasks</title></head><body><table border=1>"""
+    html += """<tr><th>ID</th><th>Title</th><th>Status</th></tr>"""
+    html += "".join(rows)
+    html += "</table></body></html>"
+    path.write_text(html, encoding="utf-8")
+    return {"path": str(path)}
 
 
 # ----- new utility tool --------------------------------------------------

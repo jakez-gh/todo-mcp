@@ -38,6 +38,14 @@ def test_cli_create(tmp_path, capsys, monkeypatch):
     captured2 = capsys.readouterr().out
     assert "c1" in captured2
 
+    # export to HTML via CLI
+    outpath = tmp_path / "cli.html"
+    monkeypatch.setattr(sys, "argv", ["todo-mcp", "export-html", str(outpath)])
+    main()
+    cap = capsys.readouterr().out
+    assert "Exported to" in cap
+    assert outpath.exists()
+
 
 def test_calling_tools(tmp_path, capsys):
     # ensure storage is isolated
