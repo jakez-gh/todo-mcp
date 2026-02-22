@@ -1,13 +1,7 @@
-import os
 import json
-import subprocess
 import sys
-from pathlib import Path
 
-import pytest
-
-from todo_mcp import mcp
-from todo_mcp import mcp_tools
+from todo_mcp import mcp, mcp_tools
 from todo_mcp.storage import FileStorage
 
 
@@ -45,6 +39,10 @@ def test_cli_create(tmp_path, capsys, monkeypatch):
     cap = capsys.readouterr().out
     assert "Exported to" in cap
     assert outpath.exists()
+
+    # render markdown via MCP tool
+    md = mcp.call_tool("render_tasks_md", {})
+    assert "| c1 | CliTask" in md
 
 
 def test_calling_tools(tmp_path, capsys):
@@ -84,7 +82,9 @@ def test_stdin_server(tmp_path):
     mcp_tools._storage = FileStorage(storage_file)
 
     input_data = []
-    input_data.append(json.dumps({"tool": "create_task", "input": {"task_id": "a", "title": "A"}}))
+    input_data.append(
+        json.dumps({"tool": "create_task", "input": {"task_id": "a", "title": "A"}})
+    )
     input_data.append(json.dumps({"tool": "get_ready_tasks", "input": {}}))
     in_stream = StringIO("\n".join(input_data) + "\n")
     out_stream = StringIO()

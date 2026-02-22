@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any, Dict, List
 
 from . import mcp
 from .storage import FileStorage
-from .tasks import Task, TaskManager, Status, CircularDependencyError, TaskNotFoundError
-from pathlib import Path
+from .tasks import Task, TaskManager, TaskNotFoundError
 
 # helper to load/save manager
 _storage = FileStorage()
@@ -115,6 +115,7 @@ def tool_get_status(args: Dict[str, Any]) -> Dict[str, Any]:
 # export utilities
 # ---------------------------------------------------------------------------
 
+
 @mcp.register_tool(
     name="export_html",
     description="Export all tasks to a simple HTML file",
@@ -129,7 +130,9 @@ def tool_export_html(args: Dict[str, Any]) -> Dict[str, Any]:
     path = Path(args["path"])
     rows = []
     for t in mgr.tasks.values():
-        rows.append(f"<tr><td>{t.id}</td><td>{t.title}</td><td>{t.status.name}</td></tr>")
+        rows.append(
+            f"<tr><td>{t.id}</td><td>{t.title}</td><td>{t.status.name}</td></tr>"
+        )
     html = """<!doctype html><html><head><meta charset=\"utf-8\"><title>Tasks</title></head><body><table border=1>"""
     html += """<tr><th>ID</th><th>Title</th><th>Status</th></tr>"""
     html += "".join(rows)
@@ -140,6 +143,7 @@ def tool_export_html(args: Dict[str, Any]) -> Dict[str, Any]:
 
 # ----- new utility tool --------------------------------------------------
 
+
 @mcp.register_tool(
     name="list_tasks",
     description="Return a list of all tasks with details",
@@ -148,3 +152,20 @@ def tool_export_html(args: Dict[str, Any]) -> Dict[str, Any]:
 def tool_list_tasks(args: Dict[str, Any]) -> List[Dict[str, Any]]:
     mgr = _load_mgr()
     return [t.to_dict() for t in mgr.tasks.values()]
+
+
+# ---------------------------------------------------------------------------
+# rendering helpers for conversation/markdown
+# ---------------------------------------------------------------------------
+
+@mcp.register_tool(
+    name="render_tasks_md",
+    description="Return a markdown-formatted list of current tasks",
+    input_schema={"type": "object", "properties": {}},
+)
+def tool_render_tasks_md(args: Dict[str, Any]) -> str:
+    mgr = _load_mgr()
+    lines = ["| ID | Title | Status |", "|---|---|---|"]
+    for t in mgr.tasks.values():
+        lines.append(f"| {t.id} | {t.title} | {t.status.name} |")
+    return "\n".join(lines)
