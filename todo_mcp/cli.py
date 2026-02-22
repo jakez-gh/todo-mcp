@@ -58,6 +58,8 @@ def main():
     create_parser.add_argument("--metadata", help="JSON metadata for the task")
     create_parser.add_argument("--depends-on", action="append", help="Dependencies")
 
+    subparsers.add_parser("tasks", help="Show dashboard of all tasks")
+
     subparsers.add_parser("serve", help="Start MCP stdin/stdout server")
 
     subparsers.add_parser("add-ci-githooks", help="Install git hooks from hooks/")
@@ -75,6 +77,11 @@ def main():
             payload["depends_on"] = args.depends_on
         res = mcp.call_tool("create_task", payload)
         print(f"Created task {res['task_id']}")
+        return 0
+    elif args.command == "tasks":
+        tasks = mcp.call_tool("list_tasks", {})
+        for t in tasks:
+            print(f"{t['id']}  [{t['status']}] {t['title']}")
         return 0
     elif args.command == "serve":
         print("Starting MCP server (type JSON lines to interact)")

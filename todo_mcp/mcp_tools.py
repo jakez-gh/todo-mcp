@@ -108,3 +108,15 @@ def tool_get_status(args: Dict[str, Any]) -> Dict[str, Any]:
     if not task:
         raise TaskNotFoundError(args["task_id"])
     return {"id": task.id, "status": task.status.name, "metadata": task.metadata}
+
+
+# ----- new utility tool --------------------------------------------------
+
+@mcp.register_tool(
+    name="list_tasks",
+    description="Return a list of all tasks with details",
+    input_schema={"type": "object", "properties": {}},
+)
+def tool_list_tasks(args: Dict[str, Any]) -> List[Dict[str, Any]]:
+    mgr = _load_mgr()
+    return [t.to_dict() for t in mgr.tasks.values()]

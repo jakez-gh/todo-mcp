@@ -23,7 +23,6 @@ def test_cli_create(tmp_path, capsys, monkeypatch):
     mcp_tools._storage = FileStorage(storage_file)
     # invoke CLI to create a task
     monkeypatch.setattr(sys, "argv", ["todo-mcp", "create", "c1", "CliTask"])
-    ret = mcp_tools  # dummy to keep flake happy
     from todo_mcp.cli import main
 
     main()
@@ -32,6 +31,12 @@ def test_cli_create(tmp_path, capsys, monkeypatch):
     # verify via mcp tool
     ready = mcp.call_tool("get_ready_tasks", {})
     assert "c1" in ready
+
+    # now list tasks via CLI
+    monkeypatch.setattr(sys, "argv", ["todo-mcp", "tasks"])
+    main()
+    captured2 = capsys.readouterr().out
+    assert "c1" in captured2
 
 
 def test_calling_tools(tmp_path, capsys):
