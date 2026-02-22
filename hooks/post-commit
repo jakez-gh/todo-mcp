@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Run tests after each commit and restart (or at least notify) MCP server if they pass.
+# This is a simple placeholder that prints deployment information.
+
+echo "[hook] running tests..."
+python -m pytest -q
+test_rc=$?
+if [ $test_rc -eq 0 ]; then
+    echo "[hook] tests passed, deploying MCP server (please restart manually if running)"
+    # future: could send a HUP or restart command to a running service
+else
+    echo "[hook] tests failed (exit $test_rc)"
+fi
+exit $test_rc

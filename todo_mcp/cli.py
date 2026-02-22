@@ -2,8 +2,11 @@
 
 import argparse
 import sys
+import json
 
 from .tasks import TaskManager, Task
+from . import mcp
+from . import mcp_tools  # ensure tools registered
 
 
 def add_ci_githooks():
@@ -52,15 +55,31 @@ def main():
     create_parser = subparsers.add_parser("create", help="Create a new task")
     create_parser.add_argument("id")
     create_parser.add_argument("title")
+    create_parser.add_argument("--metadata", help="JSON metadata for the task")
+    create_parser.add_argument("--depends-on", action="append", help="Dependencies")
+
+    subparsers.add_parser("serve", help="Start MCP stdin/stdout server")
 
     subparsers.add_parser("add-ci-githooks", help="Install git hooks from hooks/")
 
     args = parser.parse_args()
     if args.command == "create":
-        mgr = TaskManager()
-        task = Task(id=args.id, title=args.title)
-        mgr.add_task(task)
-        print(f"Created task {args.id}")
+        payload = {"task_id": args.id, "title": args.title}
+        if args.metadata:
+            try:
+                payload["metadata"] = json.loads(args.metadata)
+            except Exception:
+                print("Error: metadata must be valid JSON")
+                return 1
+        if args.depends_on:
+            payload["depends_on"] = args.depends_on
+        res = mcp.call_tool("create_task", payload)
+        print(f"Created task {res['task_id']}")
+        return 0
+    elif args.command == "serve":
+        print("Starting MCP server (type JSON lines to interact)")
+        mcp.serve_stdin()
+        return 0
     elif args.command == "add-ci-githooks":
         return add_ci_githooks()
     else:

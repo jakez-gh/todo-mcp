@@ -24,6 +24,34 @@ class Task:
     dependents: Set[str] = field(default_factory=set)
     parent: str | None = None  # optional parent task id
     subtasks: Set[str] = field(default_factory=set)
+    metadata: Dict[str, object] = field(default_factory=dict)
+    agent_context: Dict[str, object] = field(default_factory=dict)
+
+    def to_dict(self) -> Dict[str, object]:
+        """Serialize task for JSON storage."""
+        return {
+            "id": self.id,
+            "title": self.title,
+            "status": self.status.name,
+            "dependencies": list(self.dependencies),
+            "dependents": list(self.dependents),
+            "parent": self.parent,
+            "subtasks": list(self.subtasks),
+            "metadata": self.metadata,
+            "agent_context": self.agent_context,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, object]) -> "Task":
+        t = cls(id=data["id"], title=data.get("title", ""))
+        t.status = Status[data.get("status", "PENDING")]
+        t.dependencies = set(data.get("dependencies", []))
+        t.dependents = set(data.get("dependents", []))
+        t.parent = data.get("parent")
+        t.subtasks = set(data.get("subtasks", []))
+        t.metadata = data.get("metadata", {}) or {}
+        t.agent_context = data.get("agent_context", {}) or {}
+        return t
 
 
 class CircularDependencyError(Exception):
