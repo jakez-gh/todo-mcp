@@ -36,7 +36,8 @@ keep development environment in sync.
 ```powershell
 cd c:\Users\jake\dev\mcps\todo-mcp
 python -m pip install -U pip
-pip install -r requirements-dev.txt
+# install runtime dependencies as well as developer tools
+pip install -r requirements.txt -r requirements-dev.txt
 # install hooks and dev tools
 dev\install-hooks.bat     # or `bash dev/install-hooks.bat` on *nix
 ```
@@ -46,6 +47,19 @@ dev\install-hooks.bat     # or `bash dev/install-hooks.bat` on *nix
 ```powershell
 dev\rehydrate-hooks.bat
 ```
+
+The two batch files serve related but distinct purposes:
+
+* `install-hooks.bat` is intended for the initial setup on a machine.  It
+  installs both runtime and development dependencies and configures git hooks.
+* `rehydrate-hooks.bat` is a lightweight script you can run later (for example
+  on another Windows machine or after deleting `.git` metadata) to re‑apply the
+  git hook configuration without reinstalling packages.  This keeps the
+  workflows simple and avoids unnecessary package reinstalls.
+
+You could merge them, but separating the dependency installation from the hook
+rehydration keeps the actions orthogonal and easier to call in different
+contexts.
 
 3. **Run tests manually when needed**:
 
@@ -84,7 +98,7 @@ To install the provided hooks after cloning the repository, run:
 
 ```bash
 python -m todo_mcp.cli add-ci-githooks
-``` 
+```
 
 This sets `core.hooksPath` to the `hooks/` folder so the same hooks work on other machines.
 
