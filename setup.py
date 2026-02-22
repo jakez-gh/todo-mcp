@@ -33,6 +33,8 @@ setup(
     entry_points={
         "console_scripts": [
             "todo-mcp=todo_mcp.cli:main",
+            "add-ci-githooks=todo_mcp.cli:add_ci_githooks",
         ],
     },
+
 )
