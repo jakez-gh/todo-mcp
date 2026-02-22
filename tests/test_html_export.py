@@ -1,10 +1,4 @@
-import os
-from pathlib import Path
-
-import pytest
-
-from todo_mcp import mcp
-from todo_mcp import mcp_tools
+from todo_mcp import mcp, mcp_tools
 from todo_mcp.storage import FileStorage
 
 
@@ -23,3 +17,4 @@ def test_export_html(tmp_path):
     assert outpath.exists()
     content = outpath.read_text()
     assert "First" in content and "Second" in content
+    assert "<script" in content

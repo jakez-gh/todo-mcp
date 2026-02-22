@@ -128,15 +128,21 @@ def tool_get_status(args: Dict[str, Any]) -> Dict[str, Any]:
 def tool_export_html(args: Dict[str, Any]) -> Dict[str, Any]:
     mgr = _load_mgr()
     path = Path(args["path"])
-    rows = []
-    for t in mgr.tasks.values():
-        rows.append(
-            f"<tr><td>{t.id}</td><td>{t.title}</td><td>{t.status.name}</td></tr>"
-        )
-    html = """<!doctype html><html><head><meta charset=\"utf-8\"><title>Tasks</title></head><body><table border=1>"""
-    html += """<tr><th>ID</th><th>Title</th><th>Status</th></tr>"""
-    html += "".join(rows)
-    html += "</table></body></html>"
+    # simple HTML viewer: embed JSON and use JS to render
+    tasks_list = [t.to_dict() for t in mgr.tasks.values()]
+    import json as _json
+    tasks_json = _json.dumps(tasks_list)
+    html = """<!doctype html><html><head><meta charset=\"utf-8\"><title>Tasks</title></head><body>"""
+    html += """<h1>Tasks</h1><div id=\"tasks\"></div>"""
+    html += """<script>const tasks = %s;""" % tasks_json
+    html += """\nfunction render(){
+  let tbl='<table border=1><tr><th>ID</th><th>Title</th><th>Status</th></tr>';
+  for(const t of tasks){tbl += `<tr><td>${t.id}</td><td>${t.title}</td><td>${t.status}</td></tr>`;}
+  tbl+='</table>'; document.getElementById('tasks').innerHTML=tbl;
+}
+render();
+</script>"""
+    html += """</body></html>"""
     path.write_text(html, encoding="utf-8")
     return {"path": str(path)}
 
